@@ -1,6 +1,7 @@
 {CompositeDisposable} = require 'atom'
 {readCsonFile} = require './promise-helper'
 path = require 'path'
+fs = require 'fs'
 
 toUnix = (path) -> path.replace /\\/g, '/'
 
