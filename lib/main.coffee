@@ -64,6 +64,8 @@ module.exports =
         return if @buffers.has buffer = editor.getBuffer()
 
         filePath = buffer.getPath()
+        return unless isGrammarPath filePath
+
         unless packName = resolvePackageName filePath
           @debug and console.log 'Grammar is not active: ' + filePath
           return
