@@ -83,6 +83,9 @@ module.exports =
           @buffers.delete buffer
           subs.dispose()
 
+        # Stop watching when all editors of this file are closed.
+        subs.add buffer.onDidDestroy stopWatching
+
         # Stop watching when the package is deactivated.
         pack = atom.packages.getActivePackage packName
         subs.add packSub = pack.onDidDeactivate stopWatching
