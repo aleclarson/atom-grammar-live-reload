@@ -4,6 +4,22 @@ path = require 'path'
 
 toUnix = (path) -> path.replace /\\/g, '/'
 
+resolveSymlink = (filePath) ->
+  stats = fs.lstatSync filePath
+  if stats.isSymbolicLink()
+  then fs.realpathSync filePath
+  else filePath
+
+resolvePackageName = (grammarPath) ->
+  packPath = resolveSymlink path.resolve grammarPath, '../..'
+  for pack in atom.packages.getActivePackages()
+    return pack.name if packPath is resolveSymlink pack.path
+
+isGrammarPath = (filePath) ->
+  grammarRE = atom.config.get 'grammar-live-reload.grammarRE'
+  grammarRE = new RegExp grammarRE.replace /\//g, '\\/'
+  grammarRE.test toUnix filePath
+
 module.exports =
 
   config:
@@ -42,22 +58,6 @@ module.exports =
         @buffers.forEach (subs) -> subs.dispose()
         @buffers.clear()
         return
-
-      resolveSymlink = (filePath) ->
-        stats = fs.lstatSync filePath
-        if stats.isSymbolicLink()
-        then fs.realpathSync filePath
-        else filePath
-
-      resolvePackageName = (grammarPath) ->
-        packPath = resolveSymlink path.resolve grammarPath, '../..'
-        for pack in atom.packages.getActivePackages()
-          return pack.name if packPath is resolveSymlink pack.path
-
-      isGrammarPath = (filePath) ->
-        grammarRE = atom.config.get 'grammar-live-reload.grammarRE'
-        grammarRE = new RegExp grammarRE.replace /\//g, '\\/'
-        grammarRE.test toUnix filePath
 
       @editorSub = atom.workspace.observeTextEditors (editor) =>
         return if @buffers.has buffer = editor.getBuffer()
